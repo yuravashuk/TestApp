@@ -6,6 +6,8 @@
 //  Copyright © 2017 PettersonApps. All rights reserved.
 //
 
+import Photos
+
 class UploadImageInteractor: UploadImageInteractorInput {
 
     weak var output: UploadImageInteractorOutput!
@@ -20,6 +22,21 @@ class UploadImageInteractor: UploadImageInteractorInput {
             
             self?.output.uploadSuccess()
         }
+    }
+
+    func retriveMetadata(from info: [String : Any]) -> CLLocation? {
+        if let url = info[UIImagePickerControllerReferenceURL] as? URL {
+            let options = PHFetchOptions()
+            options.fetchLimit = 1
+
+            let assets = PHAsset.fetchAssets(withALAssetURLs: [url], options: options)
+            let asset = assets[0]
+            if let location = asset.location {
+                return location
+            }
+        }
+
+        return nil
     }
 
 }

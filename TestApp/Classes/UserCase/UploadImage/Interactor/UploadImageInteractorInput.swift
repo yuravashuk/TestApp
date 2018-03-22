@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol UploadImageInteractorInput {
     func uploadImage(_ image: WeatherImageUpload)
+    func retriveMetadata(from info: [String : Any]) -> CLLocation?
 }

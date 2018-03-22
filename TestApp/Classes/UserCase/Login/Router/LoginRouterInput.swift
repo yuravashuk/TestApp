@@ -10,7 +10,6 @@ import Foundation
 
 protocol LoginRouterInput {
 
-    func displayError(_ title: String)
     func showPicturesList()
     
 }

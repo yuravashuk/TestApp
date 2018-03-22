@@ -14,5 +14,9 @@ protocol UploadImageViewInput: class {
     */
 
     func setupInitialState()
-    
+    func set(title: String)
+    func showError(_ message: String)
+    func showSuccess(_ message: String)
+    func showSpinner()
+    func hideSpinner()
 }

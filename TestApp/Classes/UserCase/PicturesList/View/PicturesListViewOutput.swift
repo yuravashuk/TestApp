@@ -17,5 +17,8 @@ protocol PicturesListViewOutput {
     func requestImages()
     func addImage()
     func generateGif(_ weatherType: String)
-    
+    func numberOfSections() -> Int
+    func numberOfItems(in section: Int) -> Int
+    func picture(at index: Int, section: Int) -> WeatherImage
+    func logout()
 }

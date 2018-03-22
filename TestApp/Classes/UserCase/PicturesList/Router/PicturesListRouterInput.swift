@@ -11,4 +11,5 @@ import Foundation
 protocol PicturesListRouterInput {
     func addImage()
     func showGIF(from url:String)
+    func startScreen()
 }

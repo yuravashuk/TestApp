@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SVProgressHUD
 
 class PicturesListViewController: UIViewController, PicturesListViewInput {
     
@@ -15,16 +16,12 @@ class PicturesListViewController: UIViewController, PicturesListViewInput {
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var placeholderView: UIView!
-    
+    @IBOutlet weak var logoutButton: UIButton!
+    @IBOutlet weak var titleLabel: UILabel!
+
     var output: PicturesListViewOutput!
     static let storyboardIdentifier = String(describing: PicturesListViewController.self)
-    
-    fileprivate var items: [WeatherImage] = [] {
-        didSet {
-            tooglePlaceholder()
-        }
-    }
-    
+
     fileprivate var imagePreview: ImagePreviewHelper!
     
     fileprivate struct Constants {
@@ -50,14 +47,29 @@ class PicturesListViewController: UIViewController, PicturesListViewInput {
     func setupInitialState() {
         configureCollectionView()
     }
-    
-    func presentImages(_ images: [WeatherImage]) {
-        self.items = images
+
+    func set(title: String) {
+        titleLabel.text = title
+    }
+
+    func refreshView() {
         collectionView.reloadData()
     }
     
-    func tooglePlaceholder() {
-        placeholderView.isHidden = items.count > 0
+    func togglePlaceholder(on: Bool) {
+        placeholderView.isHidden = !on
+    }
+
+    func showSpinner() {
+        SVProgressHUD.show()
+    }
+
+    func hideSpinner() {
+        SVProgressHUD.dismiss()
+    }
+
+    func showError(_ message: String) {
+        SVProgressHUD.showError(withStatus: message)
     }
     
     // MARK: Configuration
@@ -93,26 +105,29 @@ class PicturesListViewController: UIViewController, PicturesListViewInput {
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
-        
     }
-    
+
+    @IBAction func actionLogout(_ sender: Any) {
+        output.logout()
+    }
+
 }
 
 // MARK: UICollectionViewDelegate & UICollectionViewDataSource
 extension PicturesListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return output.numberOfSections()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return items.count
+        return output.numberOfItems(in: section)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WeatherCollectionViewCell.identifier, for: indexPath) as! WeatherCollectionViewCell
         
-        let item = items[indexPath.item]
+        let item = output.picture(at: indexPath.item, section: indexPath.section)
         let url = item.smallImagePath
         let weather = item.parameters?.weather ?? ""
         let location = item.parameters?.address ?? ""
@@ -123,7 +138,8 @@ extension PicturesListViewController: UICollectionViewDelegate, UICollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let url = items[indexPath.row].smallImagePath
+        let picture = output.picture(at: indexPath.item, section: indexPath.section )
+        let url = picture.smallImagePath
         self.imagePreview.showImage(from: url)
     }
     

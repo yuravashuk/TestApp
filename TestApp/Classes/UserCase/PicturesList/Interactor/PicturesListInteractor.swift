@@ -44,4 +44,10 @@ class PicturesListInteractor: PicturesListInteractorInput {
         }
     }
 
+    func logout() {
+        User.currentUser.token = nil
+        SessionHelper.logout()
+        output.successLogout()
+    }
+
 }

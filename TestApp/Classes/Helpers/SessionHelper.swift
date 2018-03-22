@@ -8,12 +8,27 @@
 
 import KeychainSwift
 
-class SessionHelper {
+final class SessionHelper {
     
-    fileprivate static let token_key = "auth_token"
-    
+    private static let token_key = "auth_token"
+
+    static var isTokenAvailable: Bool {
+        guard let user = User.currentUser,
+            let token = user.token,
+            !token.isEmpty else {
+            return false
+        }
+
+        return true
+    }
+
+    static func logout() {
+        let keychain = KeychainSwift()
+        keychain.set("", forKey: token_key)
+    }
+
     static func storeUser() {
-        if !isTokenAvailable() {
+        if !isTokenAvailable {
             return
         }
         
@@ -32,15 +47,5 @@ class SessionHelper {
             User.currentUser.token = token
         }
     }
-    
-    static func isTokenAvailable() -> Bool {
-        guard let user = User.currentUser,
-              let token = user.token,
-              !token.isEmpty else {
-                return false
-        }
-        
-        return true
-    }
-    
+
 }

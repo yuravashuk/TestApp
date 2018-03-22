@@ -28,5 +28,12 @@ class PicturesListRouter: PicturesListRouterInput {
             transitionHandler?.present(vc, animated: true, completion: nil)
         }
     }
+
+    func startScreen() {
+        let identifier = LoginViewController.storyboardIdentifier
+        if let vc = transitionHandler?.storyboard?.instantiateViewController(withIdentifier: identifier) {
+            transitionHandler?.navigationController?.setViewControllers([vc], animated: true)
+        }
+    }
     
 }

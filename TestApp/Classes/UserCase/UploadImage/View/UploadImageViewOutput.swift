@@ -17,6 +17,7 @@ protocol UploadImageViewOutput {
     */
 
     func viewIsReady()
+    func retriveMetadata(from info: [String : Any]) -> CLLocation?
     func uploadImage(_ description: String?, hashtag: String?, metadata: CLLocation?, image: UIImage)
     func close()
     

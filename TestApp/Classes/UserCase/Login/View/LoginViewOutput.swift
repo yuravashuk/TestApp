@@ -16,7 +16,8 @@ protocol LoginViewOutput {
     */
 
     func viewIsReady()
-    func set(isRegistration: Bool)
-    func showError(_ message: String)
+    func set(isRegistration: Bool, imageWasSelected: Bool)
     func send(userName: String?, email: String?, password: String?, avatar: UIImage?)
+    func registerEmail(textField: UITextField)
+    func registerPassword(textField: UITextField)
 }

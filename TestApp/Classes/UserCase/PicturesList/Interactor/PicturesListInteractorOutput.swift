@@ -13,4 +13,5 @@ protocol PicturesListInteractorOutput: class {
     func failedLoadImages()
     func responseGIF(_ url: String)
     func failedLoadGIF(_ message: String)
+    func successLogout()
 }

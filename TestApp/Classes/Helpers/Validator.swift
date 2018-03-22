@@ -40,15 +40,24 @@ protocol ValidatorDelegate: class {
     func onFailed(_ message: String)
 }
 
-class Validator {
+final class Validator {
     
     fileprivate struct ValidableObject {
-        var textField: UITextField
+        weak var textField: UITextField?
         var enabled = true
         var validators: [Validable] = []
     }
 
     fileprivate var validableObjects: [ValidableObject] = []
+    fileprivate weak var delegate: ValidatorDelegate?
+
+    init(delegate: ValidatorDelegate? = nil) {
+        self.delegate = delegate
+    }
+
+    func set(delegate: ValidatorDelegate?) {
+        self.delegate = delegate
+    }
 
     func registerTextField(_ textField: UITextField, validators: [Validable]) {
         let object = ValidableObject(textField: textField, enabled: true, validators: validators)
@@ -71,12 +80,12 @@ class Validator {
         }
     }
     
-    func validate(delegate: ValidatorDelegate?) {
+    func validate() {
         for object in validableObjects {
             for validator in object.validators {
                 guard object.enabled else { continue }
                 
-                if !validator.validate(object.textField.text ?? "") {
+                if !validator.validate(object.textField?.text ?? "") {
                     delegate?.onFailed(validator.message)
                     return
                 }

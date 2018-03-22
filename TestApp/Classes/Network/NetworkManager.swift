@@ -18,9 +18,8 @@ class AuthTokenHeadersAdapter: RequestAdapter {
     func adapt(_ urlRequest: URLRequest) throws -> URLRequest {
         var urlRequest = urlRequest
         
-        if SessionHelper.isTokenAvailable() {
+        if SessionHelper.isTokenAvailable {
             urlRequest.addValue(User.currentUser.token!, forHTTPHeaderField: "token")
-           // urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
         }
         
         return urlRequest

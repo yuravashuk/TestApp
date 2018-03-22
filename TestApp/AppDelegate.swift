@@ -21,7 +21,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func authUser() {
-        
+        SessionHelper.retriveUser()
+
+        let identifier = SessionHelper.isTokenAvailable ? "AuthorizedViewControllerIdentifier" : "StartViewControllerIdentifier"
+        let storyboard = UIStoryboard.init(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: identifier)
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.rootViewController = vc
+        window?.makeKeyAndVisible()
     }
     
     func configureUI() {

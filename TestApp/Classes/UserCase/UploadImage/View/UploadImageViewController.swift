@@ -18,7 +18,8 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
     @IBOutlet weak var hashtagText: UITextField!
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var closeButton: UIButton!
-    
+    @IBOutlet weak var titleLabel: UILabel!
+
     var output: UploadImageViewOutput!
     static let storyboardIdentifier = String(describing: UploadImageViewController.self)
     
@@ -50,6 +51,26 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
         registerKeyboardEvents()
         configureTextFields()
         configureImageView()
+    }
+
+    func set(title: String) {
+        titleLabel.text = title
+    }
+
+    func showError(_ message: String) {
+        SVProgressHUD.showError(withStatus: message)
+    }
+
+    func showSuccess(_ message: String) {
+        SVProgressHUD.showSuccess(withStatus: message)
+    }
+
+    func showSpinner() {
+        SVProgressHUD.show()
+    }
+
+    func hideSpinner() {
+        SVProgressHUD.dismiss()
     }
     
     // MARK: Configurations
@@ -83,7 +104,7 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
     
     @IBAction func actionDone(_ sender: Any) {
         guard imageWasSelected else {
-            SVProgressHUD.showError(withStatus: "Please, select image.")
+            showError("Please, select image.")
             return
         }
         
@@ -101,7 +122,7 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
         output.close()
     }
     
-    func handlePressGesture(_ recognizer: UILongPressGestureRecognizer) {
+    @objc func handlePressGesture(_ recognizer: UILongPressGestureRecognizer) {
         switch recognizer.state {
         case .began, .changed:
             imageView.layer.borderWidth = 2.0
@@ -121,7 +142,7 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
     
     // MARK: Keyboard Handling
     
-    func keyboardWillShow(notification: NSNotification) {
+    @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
             if view.frame.origin.y == 0 {
                 let value = view.bounds.size.height - (hashtagText.frame.origin.y + hashtagText.bounds.size.height)
@@ -132,7 +153,7 @@ class UploadImageViewController: UIViewController, UploadImageViewInput {
         }
     }
     
-    func keyboardWillHide(notification: NSNotification) {
+    @objc func keyboardWillHide(notification: NSNotification) {
         if view.frame.origin.y != 0 {
             view.frame.origin.y = 0
         }
@@ -195,24 +216,10 @@ extension UploadImageViewController : UIImagePickerControllerDelegate, UINavigat
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        
         let image = info[UIImagePickerControllerOriginalImage] as! UIImage
         self.imageView.image = image
         imageWasSelected = true
-        
-        // retrive location from resource metadata
-        metadataLocation = nil
-        if let url = info[UIImagePickerControllerReferenceURL] as? URL {
-            let options = PHFetchOptions()
-            options.fetchLimit = 1
-            
-            let assets = PHAsset.fetchAssets(withALAssetURLs: [url], options: options)
-            let asset = assets[0]
-            if let location = asset.location {
-                metadataLocation = location
-            }
-        }
-        
+        metadataLocation = output.retriveMetadata(from: info)
         picker.dismiss(animated: true, completion: nil)
     }
     

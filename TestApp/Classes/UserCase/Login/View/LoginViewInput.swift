@@ -14,4 +14,10 @@ protocol LoginViewInput: class {
     */
 
     func setupInitialState()
+    func onSuccess()
+    func showError(_ message: String)
+    func showSpinner()
+    func showSuccess(_ message: String)
+    func hideSpinner()
+    func dismissKeyboard()
 }

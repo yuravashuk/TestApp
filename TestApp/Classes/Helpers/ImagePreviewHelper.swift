@@ -9,10 +9,10 @@
 import UIKit
 import SVProgressHUD
 
-class ImagePreviewHelper {
+final class ImagePreviewHelper {
     
-    let imagePreview: UIImageView = UIImageView()
-    var closePreviewGesture: UITapGestureRecognizer!
+    private let imagePreview: UIImageView = UIImageView()
+    private var closePreviewGesture: UITapGestureRecognizer!
     weak var view: UIView?
     
     required init(viewController: UIViewController) {

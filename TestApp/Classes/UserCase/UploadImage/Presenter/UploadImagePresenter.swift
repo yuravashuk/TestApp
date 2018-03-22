@@ -6,7 +6,7 @@
 //  Copyright © 2017 PettersonApps. All rights reserved.
 //
 
-import SVProgressHUD
+import Photos
 import CoreLocation
 
 class UploadImagePresenter: UploadImageModuleInput, UploadImageViewOutput, UploadImageInteractorOutput {
@@ -18,6 +18,7 @@ class UploadImagePresenter: UploadImageModuleInput, UploadImageViewOutput, Uploa
     private let locationManager = LocationHelper()
 
     func viewIsReady() {
+        view.set(title: "Upload Picture")
         view.setupInitialState()
     }
     
@@ -32,7 +33,7 @@ class UploadImagePresenter: UploadImageModuleInput, UploadImageViewOutput, Uploa
         }
         
         guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
-            SVProgressHUD.showError(withStatus: "Invalid image data")
+            view.showError("Invalid image data")
             return
         }
         
@@ -50,8 +51,12 @@ class UploadImagePresenter: UploadImageModuleInput, UploadImageViewOutput, Uploa
 
         let image = WeatherImageUpload(description: description, hashtags: hashtag, image: imageData, parameters: parameters)
 
-        SVProgressHUD.show()
+        view.showSpinner()
         interactor.uploadImage(image)
+    }
+
+    func retriveMetadata(from info: [String : Any]) -> CLLocation? {
+        return interactor.retriveMetadata(from: info)
     }
     
     func close() {
@@ -60,13 +65,13 @@ class UploadImagePresenter: UploadImageModuleInput, UploadImageViewOutput, Uploa
 
     // MARK: UploadImageInteractorOutput
     func uploadFailed() {
-        SVProgressHUD.dismiss()
-        SVProgressHUD.showError(withStatus: NetworkError.wrong.localizedDescription)
+        view.hideSpinner()
+        view.showError(NetworkError.wrong.localizedDescription)
     }
     
     func uploadSuccess() {
-        SVProgressHUD.dismiss()
-        SVProgressHUD.showSuccess(withStatus: "Uploaded!")
+        view.hideSpinner()
+        view.showSuccess("Uploaded!")
         router.dissmiss()
     }
     

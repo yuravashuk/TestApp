@@ -6,22 +6,45 @@
 //  Copyright © 2017 PettersonApps. All rights reserved.
 //
 
-import SVProgressHUD
+import UIKit
 
-class LoginPresenter: LoginModuleInput, LoginViewOutput, LoginInteractorOutput {
+final class LoginPresenter: LoginModuleInput, LoginViewOutput, LoginInteractorOutput, ValidatorDelegate {
+
+    fileprivate struct ErrorCodes {
+        static let emptyUserName = "Please enter user name"
+        static let emptyEmail = "Please enter email address"
+        static let invalidEmail = "Please enter valid email address"
+        static let emptyPassword = "Please enter password"
+        static let smallPassword = "Password must contains 8 characters at least"
+    }
 
     weak var view: LoginViewInput!
     var interactor: LoginInteractorInput!
     var router: LoginRouterInput!
+    let validator: Validator
     
     fileprivate var isRegistration = true
+
+    init() {
+        self.validator = Validator()
+        self.validator.set(delegate: self)
+    }
 
     func viewIsReady() {
         view.setupInitialState()
     }
 
+    func registerEmail(textField: UITextField) {
+        validator.registerTextField(textField, validators: [EmptyStringValidator(message: ErrorCodes.emptyEmail),
+                                                            EmailValidator(message: ErrorCodes.invalidEmail)])
+    }
+
+    func registerPassword(textField: UITextField) {
+        validator.registerTextField(textField, validators: [EmptyStringValidator(message: ErrorCodes.emptyPassword)])
+    }
+
     func send(userName: String?, email: String?, password: String?, avatar: UIImage?) {
-        SVProgressHUD.show()
+        view.showSpinner()
         
         if isRegistration {
             let user = User()
@@ -34,28 +57,46 @@ class LoginPresenter: LoginModuleInput, LoginViewOutput, LoginInteractorOutput {
         }
     }
     
-    func set(isRegistration: Bool) {
+    func set(isRegistration: Bool, imageWasSelected: Bool) {
         self.isRegistration = isRegistration
+        view.dismissKeyboard()
+
+        if isRegistration {
+            guard imageWasSelected else {
+                view.showError("Please, select avatar image.")
+                return
+            }
+        }
+
+        self.validator.validate()
     }
-    
-    func showError(_ message: String) {
-        router.displayError(message)
+
+    // MARK: ValidatorDelegate
+
+    func onSuccess() {
+        view.onSuccess()
+    }
+
+    func onFailed(_ message: String) {
+        view.showError(message)
     }
     
     // MARK: LoginInteractorOutput
     
     func responseSendRequest() {
         if isRegistration {
-            SVProgressHUD.showSuccess(withStatus: "Registered!")
+            view.showSuccess("Registered!")
         }
         
-        SVProgressHUD.dismiss()
+        view.hideSpinner()
         router.showPicturesList()
     }
     
     func responseFailedRequest(_ message: String) {
-        SVProgressHUD.dismiss()
-        showError(message)
+        view.hideSpinner()
+        view.showError(message)
     }
     
+
 }
+

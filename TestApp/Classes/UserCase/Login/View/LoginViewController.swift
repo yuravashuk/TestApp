@@ -17,19 +17,10 @@ class LoginViewController: UIViewController, LoginViewInput {
     @IBOutlet weak var passwordText: UITextField!
     
     fileprivate var avatarGesture: UILongPressGestureRecognizer!
-    fileprivate let validator = Validator()
     fileprivate var imageWasSelected = false
     
     static let storyboardIdentifier = String(describing: LoginViewController.self)
 
-    fileprivate struct ErrorCodes {
-        static let emptyUserName = "Please enter user name"
-        static let emptyEmail = "Please enter email address"
-        static let invalidEmail = "Please enter valid email address"
-        static let emptyPassword = "Please enter password"
-        static let smallPassword = "Password must contains 8 characters at least"
-    }
-    
     var output: LoginViewOutput!
 
     // MARK: Life cycle
@@ -59,6 +50,26 @@ class LoginViewController: UIViewController, LoginViewInput {
         configureAvatarImage()
         registerKeyboardEvents()
     }
+
+    func showError(_ message: String) {
+        SVProgressHUD.showError(withStatus: message)
+    }
+
+    func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    func showSpinner() {
+        SVProgressHUD.show()
+    }
+
+    func showSuccess(_ message: String) {
+        SVProgressHUD.showSuccess(withStatus: message)
+    }
+
+    func hideSpinner() {
+        SVProgressHUD.dismiss()
+    }
     
     // MARK: Configurations
     fileprivate func configureTextFields() {
@@ -69,9 +80,16 @@ class LoginViewController: UIViewController, LoginViewInput {
         userNameText.delegate = self
         emailText.delegate = self
         passwordText.delegate = self
-        
-        validator.registerTextField(emailText, validators: [EmptyStringValidator(message: ErrorCodes.emptyEmail), EmailValidator(message: ErrorCodes.invalidEmail)])
-        validator.registerTextField(passwordText, validators: [EmptyStringValidator(message: ErrorCodes.emptyPassword)])
+
+        output.registerEmail(textField: emailText)
+        output.registerPassword(textField: passwordText)
+    }
+
+    func onSuccess() {
+        let userName = userNameText.text
+        let email = emailText.text
+        let password = passwordText.text
+        output.send(userName: userName, email: email, password: password, avatar: avatarImage.image)
     }
     
     fileprivate func configureAvatarImage() {
@@ -97,25 +115,15 @@ class LoginViewController: UIViewController, LoginViewInput {
     // MARK: Actions
     
     @IBAction func actionLogin(_ sender: Any) {
-        view.endEditing(true)
-        output.set(isRegistration: false)
-        validator.validate(delegate: self)
+        output.set(isRegistration: false, imageWasSelected: imageWasSelected)
     }
     
     @IBAction func actionRegister(_ sender: Any) {
-        view.endEditing(true)
-        
-        guard imageWasSelected else {
-            SVProgressHUD.showError(withStatus: "Please, select avatar image.")
-            return
-        }
-        
-        output.set(isRegistration: true)
-        validator.validate(delegate: self)
+        output.set(isRegistration: true, imageWasSelected: imageWasSelected)
     }
     
     
-    func handlePressGesture(_ recognizer: UILongPressGestureRecognizer) {
+    @objc func handlePressGesture(_ recognizer: UILongPressGestureRecognizer) {
         switch recognizer.state {
         case .began, .changed:
             avatarImage.layer.borderWidth = 2.0
@@ -135,7 +143,7 @@ class LoginViewController: UIViewController, LoginViewInput {
     
     // MARK: Keyboard Handling
     
-    func keyboardWillShow(notification: NSNotification) {
+    @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
             if self.view.frame.origin.y == 0 {
                self.view.frame.origin.y -= keyboardSize.height - 44
@@ -143,27 +151,10 @@ class LoginViewController: UIViewController, LoginViewInput {
         }
     }
     
-    func keyboardWillHide(notification: NSNotification) {
+    @objc func keyboardWillHide(notification: NSNotification) {
         if self.view.frame.origin.y != 0 {
             self.view.frame.origin.y = 0
         }
-    }
-    
-}
-
-// MARK: ValidatorDelegate
-extension LoginViewController: ValidatorDelegate {
-    
-    func onSuccess() {
-        let userName = userNameText.text
-        let email = emailText.text
-        let password = passwordText.text
-        
-        output.send(userName: userName, email: email, password: password, avatar: avatarImage.image)
-    }
-    
-    func onFailed(_ message: String) {
-        output.showError(message)
     }
     
 }

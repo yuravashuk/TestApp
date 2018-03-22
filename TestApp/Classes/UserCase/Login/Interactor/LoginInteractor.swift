@@ -21,6 +21,7 @@ class LoginInteractor: LoginInteractorInput {
             }
             
             User.currentUser = user.value
+            SessionHelper.storeUser()
             self?.output.responseSendRequest()
         })
     }
@@ -43,6 +44,7 @@ class LoginInteractor: LoginInteractorInput {
             }
             
             User.currentUser = user.value
+            SessionHelper.storeUser()
             self?.output.responseSendRequest()
         })
     }

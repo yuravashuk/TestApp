@@ -14,7 +14,10 @@ protocol PicturesListViewInput: class {
     */
 
     func setupInitialState()
-    func presentImages(_ images: [WeatherImage])
-    func tooglePlaceholder()
-    
+    func set(title: String)
+    func refreshView()
+    func togglePlaceholder(on: Bool)
+    func showSpinner()
+    func hideSpinner()
+    func showError(_ message: String)
 }

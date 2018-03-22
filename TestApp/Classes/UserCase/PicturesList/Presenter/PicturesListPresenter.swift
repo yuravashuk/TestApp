@@ -6,21 +6,26 @@
 //  Copyright © 2017 PettersonApps. All rights reserved.
 //
 
-import SVProgressHUD
-
 class PicturesListPresenter: PicturesListModuleInput, PicturesListViewOutput, PicturesListInteractorOutput {
 
     weak var view: PicturesListViewInput!
     var interactor: PicturesListInteractorInput!
     var router: PicturesListRouterInput!
 
+    fileprivate var items: [WeatherImage] = [] {
+        didSet {
+            view.togglePlaceholder(on: items.isEmpty)
+        }
+    }
+
     // MARK: PicturesListViewOutput
     func viewIsReady() {
+        view.set(title: "My Pictures")
         view.setupInitialState()
     }
     
     func requestImages() {
-        SVProgressHUD.show()
+        view.showSpinner()
         interactor.requestImages()
     }
     
@@ -29,29 +34,51 @@ class PicturesListPresenter: PicturesListModuleInput, PicturesListViewOutput, Pi
     }
     
     func generateGif(_ weatherType: String) {
-        SVProgressHUD.show()
+        view.showSpinner()
         interactor.generateGIF(weatherType)
+    }
+
+    func numberOfSections() -> Int {
+        return 1
+    }
+
+    func numberOfItems(in section: Int) -> Int {
+        return items.count
+    }
+
+    func picture(at index: Int, section: Int) -> WeatherImage {
+        return items[index]
+    }
+
+    func logout() {
+        interactor.logout()
     }
     
     // MARK: PicturesListInteractorOutput
     func responseImages(_ images: [WeatherImage]) {
-        SVProgressHUD.dismiss()
-        view.presentImages(images)
+        items = images
+        view.hideSpinner()
+        view.refreshView()
     }
     
     func failedLoadImages() {
-        SVProgressHUD.dismiss()
-        view.tooglePlaceholder()
+        view.hideSpinner()
+        view.refreshView()
+        view.togglePlaceholder(on: true)
     }
     
     func responseGIF(_ url: String) {
-        SVProgressHUD.dismiss()
+        view.hideSpinner()
         router.showGIF(from: url)
     }
     
     func failedLoadGIF(_ message: String) {
-        SVProgressHUD.dismiss()
-        SVProgressHUD.showError(withStatus: message)
+        view.hideSpinner()
+        view.showError(message)
+    }
+
+    func successLogout() {
+        router.startScreen()
     }
     
 }

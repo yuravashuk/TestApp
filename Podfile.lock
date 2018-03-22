@@ -1,0 +1,25 @@
+PODS:
+  - Alamofire (4.6.0)
+  - AlamofireObjectMapper (5.0.0):
+    - Alamofire (~> 4.1)
+    - ObjectMapper (~> 3.0)
+  - KeychainSwift (10.0.0)
+  - ObjectMapper (3.1.0)
+  - SVProgressHUD (2.2.5)
+
+DEPENDENCIES:
+  - Alamofire
+  - AlamofireObjectMapper
+  - KeychainSwift
+  - SVProgressHUD
+
+SPEC CHECKSUMS:
+  Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
+  AlamofireObjectMapper: 5fafc816351cbbc0d486611aaeba7461c0cbad49
+  KeychainSwift: f9f7910449a0c0fd2cabc889121530dd2c477c33
+  ObjectMapper: 20505058f54e5c3ca69e1d6de9897d152a5369a6
+  SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
+
+PODFILE CHECKSUM: 57233911ee8ce7f12ebc511ce2e2a53ae5495248
+
+COCOAPODS: 1.4.0
